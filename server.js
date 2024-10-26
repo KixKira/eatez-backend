@@ -1,7 +1,15 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const User = require("./models/User");
+const Restaurant = require("./models/Restaurant");
+const Order = require("./models/Order");
+const DeliveryPerson = require("./models/DeliveryPerson");
+
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Middleware para parsear el cuerpo de las solicitudes JSON
+app.use(express.json());
 
 // Conectar a MongoDB
 mongoose
@@ -12,10 +20,115 @@ mongoose
   .then(() => console.log("Conectado a MongoDB"))
   .catch((err) => console.error("No se pudo conectar a MongoDB:", err));
 
+// Endpoint para ruta raíz
 app.get("/", (req, res) => {
   res.send("¡Hola, mundo! Bienvenido a la API de Eatez.");
 });
 
+// Endpoint para crer un nuevo usuario
+app.post("/api/users", async (req, res) => {
+  const { username, email, password } = req.body;
+
+  try {
+    const newUser = new User({ username, email, password });
+    await newUser.save();
+    res.status(201).json(newUser);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+// Endpoint para crear un nuevo restaurant
+app.post("/api/restaurants", async (req, res) => {
+  const { name, address, cuisine, rating, menu } = req.body;
+
+  try {
+    const newRestaurant = new Restaurant({
+      name,
+      address,
+      cuisine,
+      rating,
+      menu,
+    });
+    await newRestaurant.save();
+    res.status(201).json(newRestaurant);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+// Endpoint para crear un nuevo pedido
+app.post("/api/orders", async (req, res) => {
+  const { user, restaurant, items, total } = req.body;
+
+  try {
+    const newOrder = new Order({ user, restaurant, items, total });
+    await newOrder.save();
+    res.status(201).json(newOrder);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+// Endpoint para crear un nuevo repartidor
+app.post("/api/deliverypersons", async (req, res) => {
+  const { name, phone, email, vehicle } = req.body;
+
+  try {
+    const newDeliveryPerson = new DeliveryPerson({
+      name,
+      phone,
+      email,
+      vehicle,
+    });
+    await newDeliveryPerson.save();
+    res.status(201).json(newDeliveryPerson);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+// Endpoint para obtener todos los usuarios (solo para demostración)
+app.get("/api/users", async (req, res) => {
+  try {
+    const users = await User.find();
+    res.status(200).json(users);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Endpoint para obtener todos los restaurantes (solo para demostración)
+app.get("/api/restaurants", async (req, res) => {
+  try {
+    const restaurants = await Restaurant.find();
+    res.status(200).json(restaurants);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Endpoint para obtener todos los pedidos (solo para demostración)
+app.get("/api/orders", async (req, res) => {
+  try {
+    const orders = await Order.find();
+    res.status(200).json(orders);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Endpoint para obtener todos los pedidos (solo para demostración)
+app.get("/api/deliverypersons", async (req, res) => {
+  try {
+    const deliveryPerson = await DeliveryPerson.find();
+    res.status(200).json(deliveryPerson);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Iniciar el servidor
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en el puerto ${PORT}`);
 });
