@@ -1,17 +1,25 @@
 const express = require("express");
 const mongoose = require("mongoose");
+
 const User = require("./models/User");
 const Restaurant = require("./models/Restaurant");
 const Order = require("./models/Order");
 const DeliveryPerson = require("./models/DeliveryPerson");
 
+const userRoutes = require("./routes/userRoutes");
+const restaurantRoutes = require("./routes/restaurantRoutes");
+const orderRoutes = require("./routes/orderRoutes");
+const deliveryRoutes = require("./routes/deliveryRoutes");
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware para parsear el cuerpo de las solicitudes JSON
 app.use(express.json());
+app.use("/api/users", userRoutes);
+app.use("/api/restaurants", restaurantRoutes);
+app.use("/api/orders", orderRoutes);
+app.use("/api/deliverypersons", deliveryRoutes);
 
-// Conectar a MongoDB
 mongoose
   .connect("mongodb://localhost:27017/eatez", {
     useNewUrlParser: true,
@@ -20,12 +28,10 @@ mongoose
   .then(() => console.log("Conectado a MongoDB"))
   .catch((err) => console.error("No se pudo conectar a MongoDB:", err));
 
-// Endpoint para ruta raíz
 app.get("/", (req, res) => {
   res.send("¡Hola, mundo! Bienvenido a la API de Eatez.");
 });
 
-// Endpoint para crer un nuevo usuario
 app.post("/api/users", async (req, res) => {
   const { username, email, password } = req.body;
 
@@ -38,7 +44,6 @@ app.post("/api/users", async (req, res) => {
   }
 });
 
-// Endpoint para crear un nuevo restaurant
 app.post("/api/restaurants", async (req, res) => {
   const { name, address, cuisine, rating, menu } = req.body;
 
@@ -57,7 +62,6 @@ app.post("/api/restaurants", async (req, res) => {
   }
 });
 
-// Endpoint para crear un nuevo pedido
 app.post("/api/orders", async (req, res) => {
   const { user, restaurant, items, total } = req.body;
 
@@ -70,7 +74,6 @@ app.post("/api/orders", async (req, res) => {
   }
 });
 
-// Endpoint para crear un nuevo repartidor
 app.post("/api/deliverypersons", async (req, res) => {
   const { name, phone, email, vehicle } = req.body;
 
@@ -88,7 +91,6 @@ app.post("/api/deliverypersons", async (req, res) => {
   }
 });
 
-// Endpoint para obtener todos los usuarios (solo para demostración)
 app.get("/api/users", async (req, res) => {
   try {
     const users = await User.find();
@@ -98,7 +100,6 @@ app.get("/api/users", async (req, res) => {
   }
 });
 
-// Endpoint para obtener todos los restaurantes (solo para demostración)
 app.get("/api/restaurants", async (req, res) => {
   try {
     const restaurants = await Restaurant.find();
@@ -108,7 +109,6 @@ app.get("/api/restaurants", async (req, res) => {
   }
 });
 
-// Endpoint para obtener todos los pedidos (solo para demostración)
 app.get("/api/orders", async (req, res) => {
   try {
     const orders = await Order.find();
@@ -118,7 +118,6 @@ app.get("/api/orders", async (req, res) => {
   }
 });
 
-// Endpoint para obtener todos los pedidos (solo para demostración)
 app.get("/api/deliverypersons", async (req, res) => {
   try {
     const deliveryPerson = await DeliveryPerson.find();
@@ -128,7 +127,6 @@ app.get("/api/deliverypersons", async (req, res) => {
   }
 });
 
-// Iniciar el servidor
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en el puerto ${PORT}`);
 });
